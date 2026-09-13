@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+
+# Build directories
+build/
+obj_dir/
+
+# Simulation waveforms
+*.vcd
+*.fst
+
+# Verilator generated files
+*.vlt
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+
+# VS Code
+.vscode/
