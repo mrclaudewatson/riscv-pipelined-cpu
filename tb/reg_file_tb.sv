@@ -53,11 +53,11 @@ module reg_file_tb;
         input string test_name
     );
         #1;
-        if (read_data1 == expected) begin 
+        if (read_data1 === expected) begin
             $display(" PASSED: %s ", test_name);
         end
         else begin
-            $display(" FAILED: %s ", test_name);
+            $fatal(1, "FAILED: %s", test_name);
         end
     endtask
 
@@ -67,11 +67,11 @@ module reg_file_tb;
         input string test_name
     );
         #1;
-        if (read_data2 == expected) begin 
+        if (read_data2 === expected) begin
             $display(" PASSED: %s ", test_name);
         end
         else begin
-            $display(" FAILED: %s ", test_name);
+            $fatal(1, "FAILED: %s", test_name);
         end
     endtask
 
@@ -120,6 +120,14 @@ module reg_file_tb;
         check_read2(50, "dual read");
 
 
+        // Initialize x3 before checking that disabled writes preserve it.
+        @(negedge clk);
+        rd = 5'd3;
+        write_data = 32'd25;
+        wr_flag = 1;
+        @(posedge clk);
+        #1;
+
         // test 5: verify wr_flag = 0 prevents writing
         rd = 5'd3;
         write_data = 32'd67;
@@ -129,7 +137,7 @@ module reg_file_tb;
         #1;
         wr_flag = 0;
         rs1 = 5'd3;
-        check_read1(0, "no write when flag = 0");
+        check_read1(25, "no write when flag = 0");
 
 
         // test 6: attempt to write to x0
@@ -154,6 +162,8 @@ module reg_file_tb;
         rs1 = 5'd2;
         check_read1( 32'hFFFF_FFFF, "max reg value");
 
-    end 
+        $display("All register file tests passed.");
+        $finish;
+    end
 
 endmodule

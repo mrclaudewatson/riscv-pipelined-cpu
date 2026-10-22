@@ -1,9 +1,4 @@
-/*
 
-this immediate generator takes in the 32 bit instruction, extracts the immediate based on the 
-type sent by the control unit and outputs its 32 bit expansion. 
-
-*/
 
 module immediate_gen(
     input logic [31:0] instruc,
@@ -20,7 +15,7 @@ module immediate_gen(
             IMM_U = 3'b011,
             IMM_S = 3'b100;
 
-    // break the instruction signal based on datatype
+    // break up the instruction signal based on datatype
     always_comb begin
         case (imm_type)
 

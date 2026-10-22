@@ -27,7 +27,7 @@ module immediate_gen_tb;
             if (extended_immed === expected)
                 $display("PASS: %s | output = %h", test_name, extended_immed);
             else
-                $display("FAIL: %s | expected = %h, got = %h",
+                $fatal(1, "FAIL: %s | expected = %h, got = %h",
                          test_name, expected, extended_immed);
         end
     endtask

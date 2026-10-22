@@ -28,7 +28,7 @@ module alu_tb;
     alu dut (
         .a(a),
         .b(b),
-        .alu_control(alu_control),
+        .alu_op(alu_control),
         .result(result),
         .zero(zero)
     );
@@ -347,7 +347,7 @@ module alu_tb;
         if (tests_failed == 0)
             $display("ALL ALU TESTS PASSED");
         else
-            $display("SOME ALU TESTS FAILED");
+            $fatal(1, "SOME ALU TESTS FAILED");
 
         $finish;
 

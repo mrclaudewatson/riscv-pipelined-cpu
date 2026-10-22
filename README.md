@@ -65,6 +65,22 @@ Upcoming
 * Functional Coverage
 * UVM verification environment
 
+Single-cycle Integration
+
+`rtl/cpu.sv` connects the main controller, ALU decoder, and datapath. The datapath
+contains instruction/data memories, the register file, operand muxes, register
+writeback, and branch/jump target selection. `pc` and `instruction` are outputs
+for observation and instruction decoding.
+
+Run `make lint` to check the CPU and datapath connections, `make test` for all
+component and integration tests, or `make cpu` for the program test alone.
+`tb/cpu_tb.sv` initializes memory and checks arithmetic, word loads/stores, all
+six branch conditions, JAL/JALR, and reset behavior.
+
+Each memory contains 256 words (1 KiB). Data memory currently supports aligned
+word accesses only; byte/halfword accesses and address/alignment traps remain
+future work. Memory contents are supplied by the testbench for simulation.
+
 Verification
 
 Each major RTL component is being verified individually before integration into the processor datapath.

@@ -1,8 +1,4 @@
-/*
 
-
-
-*/
 
 module reg_file(
 
@@ -30,4 +26,3 @@ module reg_file(
     end
 
 endmodule
-
