@@ -3,7 +3,7 @@
 module reg_file(
 
     input logic clk,
-    input logic wr_flag,
+    input logic writeReg,
 
     input logic [4:0] rs1,
     input logic [4:0] rs2,
@@ -21,7 +21,7 @@ module reg_file(
     assign read_data2 = (rs2 == 5'd0) ? 32'd0 : registers[rs2];
 
     always_ff @(posedge clk) begin
-        if (wr_flag && (rd != 5'd0))
+        if (writeReg && (rd != 5'd0))
             registers[rd] <= write_data;
     end
 

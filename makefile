@@ -2,7 +2,7 @@ VERILATOR = verilator
 
 BUILD_DIR = build
 
-.PHONY: alu alu_control reg_file controlUnit pc immediate_gen cpu lint test clean
+.PHONY: alu alu_control reg_file controlUnit pc immediate_gen cpu cpu_wave lint test clean
 
 alu:
 	mkdir -p $(BUILD_DIR)/alu
@@ -59,6 +59,14 @@ cpu:
 		--top-module cpu_tb \
 		rtl/*.sv tb/cpu_tb.sv
 	./$(BUILD_DIR)/cpu/Vcpu_tb
+
+cpu_wave:
+	mkdir -p $(BUILD_DIR)/cpu_wave
+	$(VERILATOR) --binary --timing --trace -DWAVES \
+		--Mdir $(BUILD_DIR)/cpu_wave \
+		--top-module cpu_tb \
+		rtl/*.sv tb/cpu_tb.sv
+	./$(BUILD_DIR)/cpu_wave/Vcpu_tb
 
 lint:
 	$(VERILATOR) --lint-only --top-module cpu rtl/*.sv

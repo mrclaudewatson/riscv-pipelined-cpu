@@ -2,13 +2,19 @@ module controlUnit (
     input  logic [6:0] opcode,
 
     //control signals
-    output logic       lui,
-    output logic       pcSrc,
-    output logic       branch,
-    output logic       jump,
+    output logic lui,
+    output logic branch,
+    output logic jump,
+
+    // PC target: 00 = PC+4, 01 = PC-relative, 10 = register-relative
+    output logic [1:0] pcSrc,
+
+    // memory control signals
     output logic       memRead,
     output logic       memWrite,
     output logic       memToReg,
+
+    // register file control signals
     output logic       regWrite,
 
     // to alucontrol
@@ -39,10 +45,15 @@ module controlUnit (
         IMM_U = 3'b011,
         IMM_S = 3'b100;
 
+    localparam logic [1:0]
+        PC_SEQ  = 2'b00,
+        PC_REL  = 2'b01,
+        PC_REG  = 2'b10;
+
     always_comb begin
         // Safe defaults for unsupported opcodes
         lui      = 1'b0;
-        pcSrc    = 1'b0;
+        pcSrc    = PC_SEQ;
         branch   = 1'b0;
         jump     = 1'b0;
         memRead  = 1'b0;
@@ -97,7 +108,7 @@ module controlUnit (
             // JAL
             7'b1101111: begin
                 jump     = 1'b1;
-                pcSrc    = 1'b0;
+                pcSrc    = PC_REL;
                 regWrite = 1'b1;
                 aluOp    = ALU_OP_JUMP;
                 imm_type = IMM_J;
@@ -106,7 +117,7 @@ module controlUnit (
             // JALR
             7'b1100111: begin
                 jump     = 1'b1;
-                pcSrc    = 1'b1;
+                pcSrc    = PC_REG;
                 regWrite = 1'b1;
                 aluOp    = ALU_OP_JUMP;
                 aluBSel  = 1'b1;

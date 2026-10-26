@@ -3,7 +3,7 @@ module controlUnit_tb;
     logic [6:0] opcode;
 
     logic       lui;
-    logic       pcSrc;
+    logic [1:0] pcSrc;
     logic       branch;
     logic       jump;
     logic       memRead;
@@ -31,7 +31,7 @@ module controlUnit_tb;
 
     // Control bundle: {lui, pcSrc, branch, jump, memRead, memWrite,
     //                   memToReg, regWrite, aluOp, aluASel, aluBSel, imm_type}
-    logic [16:0] actual_controls;
+    logic [17:0] actual_controls;
 
     controlUnit dut (
         .opcode(opcode),
@@ -67,7 +67,7 @@ module controlUnit_tb;
     task automatic check_decode(
         input string test_name,
         input logic [6:0] test_opcode,
-        input logic [16:0] expected_controls
+        input logic [17:0] expected_controls
     );
         begin
             opcode = test_opcode;
@@ -77,7 +77,7 @@ module controlUnit_tb;
             if (actual_controls === expected_controls) begin
                 tests_passed++;
                 $display(
-                    "PASSED: %-24s | opcode=%07b | controls=%017b",
+                    "PASSED: %-24s | opcode=%07b | controls=%018b",
                     test_name,
                     opcode,
                     actual_controls
@@ -86,7 +86,7 @@ module controlUnit_tb;
             else begin
                 tests_failed++;
                 $display(
-                    "FAILED: %-24s | opcode=%07b | expected=%017b | got=%017b",
+                    "FAILED: %-24s | opcode=%07b | expected=%018b | got=%018b",
                     test_name,
                     opcode,
                     expected_controls,
@@ -100,7 +100,7 @@ module controlUnit_tb;
         $display("===============================================================");
         $display("                 RV32I CONTROL UNIT TESTBENCH                 ");
         $display("===============================================================");
-        $display("Control order: lui pcSrc branch jump memRead memWrite memToReg");
+        $display("Control order: lui pcSrc[1:0] branch jump memRead memWrite memToReg");
         $display("               regWrite aluOp aluASel aluBSel imm_type");
         $display("---------------------------------------------------------------");
 
@@ -108,63 +108,63 @@ module controlUnit_tb;
         check_decode(
             "R-type",
             7'b0110011,
-            17'b00000001_000_00_0_000
+            18'b000000001_000_00_0_000
         );
 
         // OP-IMM: rs1 plus I-type immediate.
         check_decode(
             "OP-IMM",
             7'b0010011,
-            17'b00000001_101_00_1_000
+            18'b000000001_101_00_1_000
         );
 
         // Load: address is rs1 plus I-type immediate, then memory to register.
         check_decode(
             "Load",
             7'b0000011,
-            17'b00001011_100_00_1_000
+            18'b000001011_100_00_1_000
         );
 
         // Store: address is rs1 plus S-type immediate.
         check_decode(
             "Store",
             7'b0100011,
-            17'b00000100_100_00_1_100
+            18'b000000100_100_00_1_100
         );
 
         // Branch: compare rs1 and rs2, and use a B-type target immediate.
         check_decode(
             "Branch",
             7'b1100011,
-            17'b00100000_010_00_0_010
+            18'b000100000_010_00_0_010
         );
 
         // JAL: jump target uses PC plus J-type immediate.
         check_decode(
             "JAL",
             7'b1101111,
-            17'b00010001_011_00_0_001
+            18'b001010001_011_00_0_001
         );
 
         // JALR: jump target uses rs1 plus I-type immediate.
         check_decode(
             "JALR",
             7'b1100111,
-            17'b01010001_011_00_1_000
+            18'b010010001_011_00_1_000
         );
 
         // LUI: write a U-type immediate to the destination register.
         check_decode(
             "LUI",
             7'b0110111,
-            17'b10000001_001_10_1_011
+            18'b100000001_001_10_1_011
         );
 
         // AUIPC: calculate PC plus a U-type immediate.
         check_decode(
             "AUIPC",
             7'b0010111,
-            17'b00000001_110_01_1_011
+            18'b000000001_110_01_1_011
         );
 
         // AUIPC must add for every immediate pattern in these bit positions.
@@ -180,19 +180,19 @@ module controlUnit_tb;
         check_decode(
             "Unsupported zero",
             7'b0000000,
-            17'b00000000_000_00_0_000
+            18'b000000000_000_00_0_000
         );
 
         check_decode(
             "FENCE unsupported",
             7'b0001111,
-            17'b00000000_000_00_0_000
+            18'b000000000_000_00_0_000
         );
 
         check_decode(
             "SYSTEM unsupported",
             7'b1110011,
-            17'b00000000_000_00_0_000
+            18'b000000000_000_00_0_000
         );
 
         $display("---------------------------------------------------------------");

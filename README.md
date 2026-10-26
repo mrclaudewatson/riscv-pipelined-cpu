@@ -1,5 +1,5 @@
 # riscv_cpu
-RV32I Pipelined CPU
+Single-cycle RISC-V CPU (pipeline planned)
 
 A 32-bit RISC-V processor implemented in SystemVerilog, targeting the RV32I base integer instruction set.
 
@@ -27,55 +27,37 @@ Planned features include:
 
 Current Status
 
-The project is currently under active development.
+The current integration is a **single-cycle processor**, not a pipelined CPU.
+The `cpu` module in `rtl/cpu.sv` is the synthesizable top-level design; it
+connects the controller, ALU decoder, and datapath. The datapath includes the
+program counter, instruction and data memories, register file, ALU, and
+branch/jump selection.
 
-Completed
+Implemented instruction behaviors are a partial RV32I subset:
 
-* Project structure and Git workflow
-* 32-bit combinational ALU
-    * ADD
-    * SUB
-    * AND
-    * OR
-    * XOR
-    * SLL
-    * SRL
-    * SRA
-    * SLT
-    * SLTU
-* ALU testbench and functional verification
+* Register-register integer ALU operations: ADD, SUB, AND, OR, XOR, SLL, SRL,
+  SRA, SLT, and SLTU.
+* Immediate integer ALU operations: ADDI, ANDI, ORI, XORI, SLLI, SRLI, SRAI,
+  SLTI, and SLTIU.
+* LUI and AUIPC.
+* JAL and JALR.
+* BEQ, BNE, BLT, BGE, BLTU, and BGEU.
+* LW and SW using aligned 32-bit word accesses only.
 
-In Progress
+This is not full RV32I or an ISA-compliant implementation yet. Byte and
+halfword loads/stores, FENCE, SYSTEM instructions and traps are not implemented.
+The M, A, and C extensions are also out of scope. Some invalid instruction
+encodings are not strictly rejected by the current decoder.
 
-* RV32I Immediate Generator
-
-Upcoming
-
-* Register File
-* Program Counter logic
-* Main Control Unit
-* Instruction decoding
-* Instruction and Data Memory
-* Single-cycle RV32I datapath
-* 5-stage pipeline
-* Forwarding Unit
-* Hazard Detection Unit
-* Branch/Jump handling
-* SystemVerilog Assertions
-* Functional Coverage
-* UVM verification environment
-
-Single-cycle Integration
-
-`rtl/cpu.sv` connects the main controller, ALU decoder, and datapath. The datapath
-contains instruction/data memories, the register file, operand muxes, register
-writeback, and branch/jump target selection. `pc` and `instruction` are outputs
-for observation and instruction decoding.
-
-Run `make lint` to check the CPU and datapath connections, `make test` for all
-component and integration tests, or `make cpu` for the program test alone.
-`tb/cpu_tb.sv` initializes memory and checks arithmetic, word loads/stores, all
-six branch conditions, JAL/JALR, and reset behavior.
+`tb/cpu_tb.sv` is the integrated functional testbench. It initializes the
+instruction/data memories and register file in the testbench, then checks PC
+flow, register and memory results, branches, jumps, and reset. No additional
+top module is needed to begin simulation: run `make cpu` for the integrated
+test or `make test` for the component and integration suite. Run `make lint` to
+check RTL elaboration. Run `make cpu_wave` to generate a VCD waveform at
+`build/cpu_wave/cpu.vcd`; open it with GTKWave. See
+[`docs/verification.md`](docs/verification.md) for setup and signal-navigation
+guidance.
 
 Each memory contains 256 words (1 KiB). Data memory currently supports aligned
 word accesses only; byte/halfword accesses and address/alignment traps remain
@@ -83,7 +65,9 @@ future work. Memory contents are supplied by the testbench for simulation.
 
 Verification
 
-Each major RTL component is being verified individually before integration into the processor datapath.
+RTL components are tested individually and together through directed
+SystemVerilog testbenches. The CPU integration test is an initial functional
+test, not a complete architectural compliance suite.
 
 Verification will progressively include:
 
@@ -128,4 +112,17 @@ The processor is being developed incrementally:
 
 Status
 
-Work in progress — currently developing the processor’s core RTL components.
+Work in progress — the current milestone is a tested single-cycle instruction
+subset. The five-stage pipeline and its forwarding, hazard, and flush logic are
+future work.
+
+## Development checklist
+
+- [x] Integrate the current single-cycle instruction subset.
+- [x] Add a self-checking CPU-level testbench.
+- [x] Document the supported subset and simulation workflow.
+- [ ] Expand CPU tests to cover every implemented ALU operation and immediate form.
+- [ ] Tighten instruction decoding and define behavior for unsupported encodings.
+- [ ] Load programs from image files instead of only initializing memories hierarchically in the testbench.
+- [ ] Complete and verify full RV32I behavior, including byte/halfword memory accesses and required traps.
+- [ ] Design and verify the five-stage pipeline, forwarding, stalls, and flushes.
